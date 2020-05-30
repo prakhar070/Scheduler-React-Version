@@ -15,7 +15,7 @@ function App() {
     const [createBox, setCreateBox] = useState(false);
     const [loggedInStatus, setLoggedInStatus] = useState(false);
     const [currentUser, setCurrentUser] = useState("")
-
+    
     const changeStateOfCreateBox = () => { // this will change the state
         createBox === true ? setCreateBox(false) : setCreateBox(true);
     }
@@ -59,19 +59,24 @@ function App() {
             setCurrentUser(jsondata);
             setLoggedInStatus(true);
         }
+        else{
+            setCurrentUser("");
+            setLoggedInStatus(false);
+        }
     }
     useEffect(() => {
-        checkLoginStatus();
+        checkLoginStatus()
     }, [])
 
     return (
+        
         <div className="App">
             <Navbar changeStateOfCreateBox={changeStateOfCreateBox} handleLogout={handleLogout} loggedInStatus={loggedInStatus} />
             <Switch>
                 <Route exact path='/interviews'
                     render={
                         () => <InterviewList createBox={createBox}
-                            changeStateOfCreateBox={changeStateOfCreateBox} loggedInStatus={loggedInStatus}/>
+                            changeStateOfCreateBox={changeStateOfCreateBox} />
                     }/>
                 <Route exact path='/about'
                     component={About}/>

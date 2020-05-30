@@ -1,12 +1,19 @@
 import React from 'react'
 import {useState} from 'react'
 import Form from './Form'
+import '../css/Interview.css'
 
 export default function Interview(props) {
     const [editState, setEditState] = useState(false)
     const [detailState, setDetailState] = useState(false)
     const [detailText, setDetailText] = useState("View Details")
+    
 
+    const getFormattedDateTime = (datetime)=>{
+        const date = new Date(new Date(datetime).getTime() + 330*60000);
+        const idx = date.toUTCString().lastIndexOf(' ');
+        return date.toUTCString().substr(0,idx-3);
+    }
     const changeDetailState = () => {
         if (!detailState) {
             setDetailState(true)
@@ -31,13 +38,8 @@ export default function Interview(props) {
                     <h4>{
                         props.title
                     }</h4>
-                    <i class="fa fa-clock-o ml-4 mr-1" aria-hidden="true"></i>
-                    {
-                    props.starttime
-                }
-                    - {
-                    props.endtime
-                }
+                    <i class="fa fa-clock-o ml-4 mr-2" aria-hidden="true"></i>
+                    {getFormattedDateTime(props.starttime)} - {getFormattedDateTime(props.endtime)}
                     <a className="card-link" onClick={changeDetailState}
                         style={
                             {float: "right"}
@@ -53,18 +55,25 @@ export default function Interview(props) {
                                         {width: "auto"}
                                 }>
                                     <div className="card-body">
+                                        <span style={{float:"left"}}>
                                         <h5 className="card-title">
-                                            {
-                                            props.interviewer.name
-                                        }
-                                            <small className="text-muted">(Interviewer)</small>
+                                            {props.members.interviewer.name}<small className="text-muted">(Interviewer)</small>
                                         </h5>
                                         <h6 className="card-subtitle mb-2 text-muted">
                                             {
-                                            props.interviewer.email
+                                            props.members.interviewer.email
                                         }</h6>
+                                        </span>
+                                        <span style={{float:"right"}}>
+                                        <h5 className="card-title">
+                                            {props.members.organizer.name}<small className="text-muted">(organizer)</small>
+                                        </h5>
+                                        <h6 className="card-subtitle mb-2 text-muted">
+                                            {
+                                            props.members.organizer.email
+                                        }</h6>
+                                        </span>
                                         <p className="card-text">
-                                            Participants
                                             <table className="table table-hover table-dark mt-2">
                                                 <thead>
                                                     <tr>
@@ -73,12 +82,12 @@ export default function Interview(props) {
                                                     </tr>
                                                 </thead>
                                                 <tbody> {
-                                                    props.participants.map((participant) => {
+                                                    props.members.participants.map((participant) => {
                                                         return (
                                                             <tr>
                                                                 <td>{
                                                                     participant.name
-                                                                }</td>
+                                                                } <small className="text-muted"> (participant)</small></td>
                                                                 <td>{
                                                                     participant.email
                                                                 }</td>
