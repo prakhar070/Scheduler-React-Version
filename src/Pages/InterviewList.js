@@ -35,6 +35,7 @@ export default function InterviewList(props) {
         fetchedData.forEach((interview) => {
             nextInterviews.push(interview);
         })
+        console.log("fetched interviews are ",nextInterviews);
         setInterviews(nextInterviews);
     };
 
@@ -55,6 +56,9 @@ export default function InterviewList(props) {
         if (result) {
             //Logic to delete the item 
             const res = await deleteData(`http://localhost:4000/interviews/${id}`);
+            if(res.message){
+                alert("interview deleted successfully !")
+            }
             fetchInterviewsData();
         }
     }

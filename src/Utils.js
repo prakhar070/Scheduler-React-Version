@@ -18,6 +18,7 @@ const getData = async(url = '')=> {
     return jsondata;
 }
 
+
 // a utility function to post data to a specific URL
 const postData = async(url = '', data = {})=> {
     const response = await fetch(url, {
@@ -109,7 +110,7 @@ const checkInterviewValidations = ({ title, starttime, endtime, interviewer, par
     if (title !== "" && title.length < 3) 
         errors.title = "provide a valid title with minimum length of 3";
     
-    if (starttime !== "" && endtime && starttime >= endtime) 
+    if (new Date(starttime) >= new Date(endtime)) 
         errors.starttime = "starttime must be less than endtime";
     
     if (participants.length == 0) 
@@ -117,5 +118,9 @@ const checkInterviewValidations = ({ title, starttime, endtime, interviewer, par
     
     return errors;
 }
+
+
+
+
 export {postData, getData, putData, deleteData, utcToLocal, localToUtc, checkInterviewValidations}
 
