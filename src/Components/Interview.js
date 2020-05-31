@@ -2,17 +2,18 @@ import React from 'react'
 import {useState} from 'react'
 import Form from './Form'
 import '../css/Interview.css'
-
+import { utcToLocal } from '../Utils'
 export default function Interview(props) {
     const [editState, setEditState] = useState(false)
     const [detailState, setDetailState] = useState(false)
     const [detailText, setDetailText] = useState("View Details")
-    
-
-    const getFormattedDateTime = (datetime)=>{
-        const date = new Date(new Date(datetime).getTime() + 330*60000);
-        const idx = date.toUTCString().lastIndexOf(' ');
-        return date.toUTCString().substr(0,idx-3);
+    const getFormattedDisplay = (starttime, endtime) =>{
+        let localSt = utcToLocal(starttime);
+        let localEt = utcToLocal(endtime);
+        const dt = localSt.substr(0, localSt.indexOf("T"));
+        const start = localSt.substr(localSt.indexOf("T")+1);
+        const end = localEt.substr(localEt.indexOf("T")+1);
+        return `${dt}, ${start} - ${end}`;
     }
     const changeDetailState = () => {
         if (!detailState) {
@@ -39,7 +40,7 @@ export default function Interview(props) {
                         props.title
                     }</h4>
                     <i class="fa fa-clock-o ml-4 mr-2" aria-hidden="true"></i>
-                    {getFormattedDateTime(props.starttime)} - {getFormattedDateTime(props.endtime)}
+                    {getFormattedDisplay(props.starttime, props.endtime)}
                     <a className="card-link" onClick={changeDetailState}
                         style={
                             {float: "right"}

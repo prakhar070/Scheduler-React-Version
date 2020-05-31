@@ -1,4 +1,6 @@
-import React from 'react'
+import React from 'react';
+import {checkSignupValidations, reflectFormErrors} from "../AuthUtils";
+import {postData} from "../Utils";
 
 export default function Signup(props) {
     let nameRef = null;
@@ -6,75 +8,20 @@ export default function Signup(props) {
     let passwordRef = null;
     let confirmpasswordRef = null;
 
-    const postData = async(url = '', data = {})=> {
-        const response = await fetch(url, {
-          method: 'POST',
-          mode: 'cors',       
-          cache: 'no-cache', 
-          credentials: 'same-origin', 
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem("token")}`
-          },
-          redirect: 'follow', 
-          referrerPolicy: 'no-referrer', 
-          body: JSON.stringify({user:data})
-        });
-        const jsondata = await response.json();
-        return jsondata;
-    }
-
-    function hasNumber(string) {
-        return /\d/.test(string);
-    }
-
-    const ValidateEmail = (mail)=> {
-        if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail)){
-            console.log("true returned")
-            return true
-        }
-        return false
-    }
-
-    const getData = () => {
+    const collectFormData = () => {
         let user = {}
         user.name = nameRef.value
         user.email = emailRef.value
         user.password = passwordRef.value
         user.password_confirmation = confirmpasswordRef.value
-        console.log("registered data is ", user);
         return user
     }
-    const checkSignupValidations = (data)=>{
-        let errors = {}
-        
-        if(data.password && data.password.length < 8){
-            errors.password = "Please provide a valid password that is atleast 8 characters long";
-        }
-        if(data.email && !ValidateEmail(data.email)){
-            errors.email = "Please provide a valid email address ";
-        }
-        if(data.name && (data.name.length < 2 || hasNumber(data.name) )){
-            errors.name = "Please provide a valid string for name that is atleast 2 characters long and must not contain numbers";
-        }
-        if(data.password && data.password_confirmation && data.password_confirmation !== data.password){
-            errors.password = "does not match with confirmed value";
-        }
-        return errors;
-    }
-    const reflectFormErrors = (errors)=>{
-        document.getElementById("name").innerText = errors.name? errors.name : ""
-        document.getElementById("email").innerText = errors.email ? errors.email : ""
-        document.getElementById("password").innerText = errors.password ? errors.password : ""
-    }
     const handleSubmit = async (e)=>{
-        const formData = getData();
-        console.log("form data is ",formData);
+        const formData = collectFormData();
         const errors = checkSignupValidations(formData);
-        console.log("Errors are ",errors);
+        //if there are no validation error, we make a post request
         if(Object.keys(errors).length === 0){
-            const data = await postData("http://localhost:4000/auth/register", formData);
-            console.log("data received is ", data);
+            const data = await postData("http://localhost:4000/auth/register",{user: formData});
             if(data.error){
                 reflectFormErrors(data.error);
                 passwordRef.value = "";
@@ -107,7 +54,6 @@ export default function Signup(props) {
                     Confirm Password <small className="error" id="password_confirmation"></small><br/><input type="password" name="password_confirmation" className="form-control mb-3" ref={(input) => {confirmpasswordRef = input}} placeholder="retype password" />
                     <button type="button" className="btn btn-primary" onClick={handleSubmit} id="submit" >Sign Up</button>
                 </form>
-                <p className="text-center">Have an account? <a href="#login">login</a></p>
             </article>
         </div> 
         </div>

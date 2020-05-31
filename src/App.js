@@ -4,11 +4,12 @@ import './App.css';
 import {Switch, Route} from 'react-router-dom';
 import InterviewList from './Pages/InterviewList';
 import About from './Pages/About';
-import Bottombar from './Components/Bottombar'
 import Navbar from './Components/Navbar'
 import Login from './Pages/Login'
 import Signup from './Pages/Signup'
-import { useHistory } from "react-router-dom";
+import {useHistory } from "react-router-dom";
+import {checkLoginStatus} from "./AuthUtils"
+
 
 function App() {
     let history = useHistory();
@@ -23,6 +24,7 @@ function App() {
         setLoggedInStatus(true)
         localStorage.setItem("token", data.access_token);
         setCurrentUser(data.username);
+        alert("logged-In successdfully");
         history.push('/interviews')
     }
     const handleLogout = () => {
@@ -33,39 +35,18 @@ function App() {
         history.push('/login')
     }
     
+    // a function that handles successfull registration
     const handleRegister = ()=>{
         alert("user created successfully !")
+        //redirect user to the login page
         history.push('/login')
     }
 
-    const checkLoginStatus = async (url = '') => {
-        const response = await fetch('http://localhost:4000/loggedIn', {
-            method: 'GET',
-            mode: 'cors',
-            cache: 'no-cache',
-            credentials: 'same-origin',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${
-                    localStorage.getItem("token")
-                }`
-            },
-            redirect: 'follow',
-            referrerPolicy: 'no-referrer'
-        });
-        const jsondata = await response.json();
-        console.log(jsondata);
-        if(jsondata.id){
-            setCurrentUser(jsondata);
-            setLoggedInStatus(true);
-        }
-        else{
-            setCurrentUser("");
-            setLoggedInStatus(false);
-        }
-    }
     useEffect(() => {
-        checkLoginStatus()
+        checkLoginStatus().then((res)=>{
+            if(res) setLoggedInStatus(true);
+            else setLoggedInStatus(false);
+        })
     }, [])
 
     return (
