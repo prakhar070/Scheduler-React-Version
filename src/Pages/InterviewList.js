@@ -5,26 +5,32 @@ import { useHistory } from "react-router-dom";
 import {checkLoginStatus} from "../AuthUtils"
 import { getData, deleteData} from "../Utils"
 import {fetchUsers} from '../actions/usersActions'
+import {fetchInterviews} from '../actions/interviewsActions'
 import {connect} from 'react-redux'
 
 const mapStateToProps = (state)=>{
+    console.log("map state to props ");
     return {
         loading: state.users.loading,
         users: state.users.users,
-        error: state.users.error
+        interviews: state.interviews.interviews,
+        errorUsers: state.users.error,
+        errorInterviews: state.interviews.error
     }
 }
 
 const mapDispatchToProps = dispatch =>{
+    console.log("map dispatch to props ");
     return {
-        fetchUsers: ()=> dispatch(fetchUsers())
+        fetchUsers: ()=> dispatch(fetchUsers()),
+        fetchInterviews: ()=> dispatch(fetchInterviews())
     }
 }
 
 const InterviewList = (props)=> {
-
+    console.log("inside component");
     let history = useHistory();
-    const [Interviews, setInterviews] = useState([]);
+    //const [Interviews, setInterviews] = useState([]);
     // const [Users, setUsers] = useState([]);
 
     // const fetchUsers = async () => {
@@ -44,23 +50,25 @@ const InterviewList = (props)=> {
         return Promise.all(promises);
     }
 
-    const fetchInterviewsData = async() => {
-        const nextInterviews = [];
-        let interviews = await getData("http://localhost:4000/interviews");
-        interviews = interviews.interviews.organized.concat(interviews.interviews.participated).concat(interviews.interviews.interviewed);
-        const fetchedData = await mapp(interviews);
-        fetchedData.forEach((interview) => {
-            nextInterviews.push(interview);
-        })
-        console.log("fetched interviews are ",nextInterviews);
-        setInterviews(nextInterviews);
-    };
+    // const fetchInterviewsData = async() => {
+    //     const nextInterviews = [];
+    //     let interviews = await getData("http://localhost:4000/interviews");
+    //     interviews = interviews.interviews.organized.concat(interviews.interviews.participated).concat(interviews.interviews.interviewed);
+    //     const fetchedData = await mapp(interviews);
+    //     fetchedData.forEach((interview) => {
+    //         nextInterviews.push(interview);
+    //     })
+    //     console.log("fetched interviews are ",nextInterviews);
+    //     setInterviews(nextInterviews);
+    // };
 
     useEffect(()=> {
+        console.log("inside use effect");
         checkLoginStatus().then((res)=>{
             if(res){
-                fetchInterviewsData();
+                //fetchInterviewsData();
                 // fetchUsers();
+                props.fetchInterviews()
                 props.fetchUsers()
             }
             else{
@@ -77,15 +85,17 @@ const InterviewList = (props)=> {
             if(res.message){
                 alert("interview deleted successfully !")
             }
-            fetchInterviewsData();
+            //fetchInterviewsData();
+            props.fetchInterviews();
         }
     }
     const handleSuccessfullCreateEdit = ()=>{
-        fetchInterviewsData();
+        // fetchInterviewsData();
+        props.fetchInterviews();
     }
 
 
-   
+
     return (
         <div className="row">
             <div className="offset-md-3"></div>
@@ -103,12 +113,19 @@ const InterviewList = (props)=> {
                     })()
                 }
                     {
-                    Interviews.map(interview => {
+                    // Interviews.map(interview => {
+                    //     return <Interview {...interview.interview}
+                    //         users={props.users.users}
+                    //         handleSuccessfullCreateEdit={handleSuccessfullCreateEdit} onDelete={onDelete} />;
+                    // })
+                    props.interviews.map(interview => {
                         return <Interview {...interview.interview}
                             users={props.users.users}
                             handleSuccessfullCreateEdit={handleSuccessfullCreateEdit} onDelete={onDelete} />;
                     })
-                } </div>
+                } 
+                
+                </div>
                 <div className="offset-md-3"></div>
             </div>
         </div>

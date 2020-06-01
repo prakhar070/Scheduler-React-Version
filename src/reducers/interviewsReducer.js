@@ -1,27 +1,27 @@
-import * as actions from '../actions/usersActions'
+import * as actions from '../actions/interviewsActions'
 // initial state
 export const initialState = {
-    users: [],
+    interviews: [],
     loading: false,
     error: ""
 }
 
-export default function usersReducer(state = initialState, action) {
+export default function interviewsReducer(state = initialState, action) {
     switch (action.type) {
-        case actions.GET_USERS:
+        case actions.GET_INTERVIEWS:
             return {
                 ... state,
                 loading: true
             }
             break;
-        case actions.GET_USERS_SUCCESS:
+        case actions.GET_INTERVIEWS_SUCCESS:
             return {
                 ... state,
                 loading: false,
-                users: action.payload
+                interviews: action.payload
             }
             break;
-        case actions.GET_USERS_FAILURE:
+        case actions.GET_INTERVIEWS_FAILURE:
             return {
                 ... state,
                 loading: false,

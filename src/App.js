@@ -10,6 +10,7 @@ import Signup from './Pages/Signup'
 import {useHistory } from "react-router-dom";
 import {checkLoginStatus} from "./AuthUtils"
 import UsersRedux from './Components/UsersRedux';
+import InterviewsRedux from './Components/InterviewsRedux';
 
 
 function App() {
@@ -52,6 +53,7 @@ function App() {
         <div className="App">
             <Navbar changeStateOfCreateBox={changeStateOfCreateBox} handleLogout={handleLogout} loggedInStatus={loggedInStatus} />
             <UsersRedux />
+            <InterviewsRedux />
             <Switch>
                 <Route exact path='/interviews'
                     render={
