@@ -52,8 +52,6 @@ function App() {
         
         <div className="App">
             <Navbar changeStateOfCreateBox={changeStateOfCreateBox} handleLogout={handleLogout} loggedInStatus={loggedInStatus} />
-            <UsersRedux />
-            <InterviewsRedux />
             <Switch>
                 <Route exact path='/interviews'
                     render={
