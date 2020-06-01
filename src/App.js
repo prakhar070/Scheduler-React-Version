@@ -9,13 +9,13 @@ import Login from './Pages/Login'
 import Signup from './Pages/Signup'
 import {useHistory } from "react-router-dom";
 import {checkLoginStatus} from "./AuthUtils"
+import UsersRedux from './Components/UsersRedux';
 
 
 function App() {
     let history = useHistory();
     const [createBox, setCreateBox] = useState(false);
     const [loggedInStatus, setLoggedInStatus] = useState(false);
-    const [currentUser, setCurrentUser] = useState("")
     
     const changeStateOfCreateBox = () => { // this will change the state
         createBox === true ? setCreateBox(false) : setCreateBox(true);
@@ -23,13 +23,11 @@ function App() {
     const handleLogin = (data) =>{
         setLoggedInStatus(true)
         localStorage.setItem("token", data.access_token);
-        setCurrentUser(data.username);
         alert("logged-In successdfully");
         history.push('/interviews')
     }
     const handleLogout = () => {
         setLoggedInStatus(false)
-        setCurrentUser("")
         //clear the token
         localStorage.setItem("token","");
         history.push('/login')
@@ -53,6 +51,7 @@ function App() {
         
         <div className="App">
             <Navbar changeStateOfCreateBox={changeStateOfCreateBox} handleLogout={handleLogout} loggedInStatus={loggedInStatus} />
+            <UsersRedux />
             <Switch>
                 <Route exact path='/interviews'
                     render={
