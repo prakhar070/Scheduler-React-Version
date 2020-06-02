@@ -9,6 +9,7 @@ import {
 import {reflectFormErrors} from "../AuthUtils"
 import {postNewInterview} from '../actions/postInterviewAction'
 import {connect} from 'react-redux'
+import LoadingSpinner from './LoadingSpinner'
 
 const mapStateToProps = (state)=>{
     return {
@@ -127,6 +128,7 @@ const Form = (props) =>{
     const handleFile = (e) => {
         setResumes(Array.from(e.target.files))
     }
+
     useEffect(() => {
         setData();
     }, [])
@@ -135,8 +137,13 @@ const Form = (props) =>{
         reflectFormErrors(props.error);
     },[props.error])
 
-    return (
-    <div className="card-body">
+
+    let form;
+    if(props.loading){
+        form = <LoadingSpinner />
+    }
+    else{
+        form = <div className="card-body">
         <div className="card"
             style={
                 {width: "auto"}
@@ -266,6 +273,13 @@ const Form = (props) =>{
 
     </div>
 </div>
-</div>)
+</div>
 }
+    return (
+        <>
+        {form}
+        </>
+    )
+}
+
 export default connect(mapStateToProps, mapDispatchToProps)(Form)
