@@ -31,14 +31,6 @@ const mapDispatchToProps = dispatch =>{
 const InterviewList = (props)=> {
     console.log("inside component");
     let history = useHistory();
-    const mapp = (interviews) => {
-        const promises = interviews.map(async (interview) => {
-            const interviewData = await getData(`http://localhost:4000/interviews/${interview.id}`);
-            return interviewData;
-        });
-        return Promise.all(promises);
-    }
-
 
     useEffect(()=> {
         console.log("inside use effect");

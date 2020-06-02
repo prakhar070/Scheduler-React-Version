@@ -7,31 +7,32 @@ import {
     checkInterviewValidations,
 } from "../Utils"
 import {reflectFormErrors} from "../AuthUtils"
-import {postNewInterview} from '../actions/postInterviewAction'
+import {postNewInterview, updateExistingInterview} from '../actions/interviewsActions'
 import {connect} from 'react-redux'
 import LoadingSpinner from './LoadingSpinner'
 import PopUp from './PopUp'
 
 const mapStateToProps = (state)=>{
     return {
-        loading: state.postInterview.loading,
-        error: state.postInterview.error,
-        interview: state.postInterview.interview
+        loading: state.interviews.loading,
+        error: state.interviews.error,
+        interview: state.interviews.interview
     }
 }
 
 const mapDispatchToProps = dispatch =>{
     return {
        postNewInterview: (interview)=> dispatch(postNewInterview(interview)),
+       updateExistingInterview: (interview)=> dispatch(postNewInterview(interview))
     }
 }
 
 const Form = (props) =>{
-    let titleRef = null;
-    let starttimeRef = null;
-    let endtimeRef = null;
-    let participantsRef = null;
-    let interviewerRef = null;
+    let titleRef;
+        let starttimeRef;
+        let endtimeRef;
+        let participantsRef;
+        let interviewerRef;
 
     const [resumes, setResumes] = useState([]);
     const setData = () => {
@@ -57,7 +58,6 @@ const Form = (props) =>{
                 interview.participants.push(options[i].value);
             }
         }
-        console.log("interview object is ", interview);
         return interview
     }
     const onClose = (e) => {
@@ -76,17 +76,18 @@ const Form = (props) =>{
     }
 
     const editInterview = async (interview) => {
-        const res = await putData(`http://localhost:4000/interviews/${
-            props.id
-        }`, {interview: interview});
-        console.log("res is ", res);
-        if (res.error) { // print errors in form here
-            reflectFormErrors(res.error);
-        } else {
-            alert("interview updated successfully");
-            props.handleSuccessfullCreateEdit();
-            onClose();
-        }
+        props.updateExistingInterview({interview:interview});
+        // const res = await putData(`http://localhost:4000/interviews/${
+        //     props.id
+        // }`, {interview: interview});
+        // console.log("res is ", res);
+        // if (res.error) { // print errors in form here
+        //     reflectFormErrors(res.error);
+        // } else {
+        //     alert("interview updated successfully");
+        //     props.handleSuccessfullCreateEdit();
+        //     onClose();
+        // }
     }
     const uploadFiles = async (files, interviewid) => {
         var formData = new FormData();
@@ -112,12 +113,7 @@ const Form = (props) =>{
     }
 
     const createInterview = async (interview) => {
-        console.log("interviews is ", {interview:interview} );
-        //const res = await postData("http://localhost:4000/interviews/", {interview: interview});
-        //console.log("res is ", res);
         props.postNewInterview({interview:interview});
-        //after this I will check the state, if there is success, then I will display a component to show success, else I will show failure
-        console.log("errors are ", props.error)
         // if (props.error) { // print errors in form here
         //     reflectFormErrors(props.error);
         // } else {
@@ -132,7 +128,8 @@ const Form = (props) =>{
     }
 
     useEffect(() => {
-        setData();
+        if(Object.keys(props.interview).length === 0)
+            setData();
     }, [])
 
     useEffect(()=>{
@@ -145,7 +142,7 @@ const Form = (props) =>{
         form = <LoadingSpinner />
     }
     else if (Object.keys(props.interview).length > 0){
-        form = <PopUp message="interview saved successfully" />
+        form = <PopUp message="interview saved successfully" handleSuccessfullCreateEdit={props.handleSuccessfullCreateEdit} onClose = {onClose}/>
     }
     else{
         form = <div className="card-body">
