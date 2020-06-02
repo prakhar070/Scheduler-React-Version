@@ -2,7 +2,8 @@ import * as actions from '../actions/postInterviewAction'
 // initial state
 export const initialState = {
     loading: false,
-    error: []
+    error: [],
+    interview: {},
 }
 
 export default function postInterviewReducer(state = initialState, action) {
@@ -16,7 +17,8 @@ export default function postInterviewReducer(state = initialState, action) {
         case actions.POST_INTERVIEW_SUCCESS:
             return {
                 ... state,
-                loading: false
+                loading: false,
+                interview: action.payload
             }
             break;
         case actions.POST_INTERVIEW_FAILURE:

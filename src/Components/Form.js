@@ -10,11 +10,13 @@ import {reflectFormErrors} from "../AuthUtils"
 import {postNewInterview} from '../actions/postInterviewAction'
 import {connect} from 'react-redux'
 import LoadingSpinner from './LoadingSpinner'
+import PopUp from './PopUp'
 
 const mapStateToProps = (state)=>{
     return {
         loading: state.postInterview.loading,
-        error: state.postInterview.error
+        error: state.postInterview.error,
+        interview: state.postInterview.interview
     }
 }
 
@@ -141,6 +143,9 @@ const Form = (props) =>{
     let form;
     if(props.loading){
         form = <LoadingSpinner />
+    }
+    else if (Object.keys(props.interview).length > 0){
+        form = <PopUp message="interview saved successfully" />
     }
     else{
         form = <div className="card-body">
