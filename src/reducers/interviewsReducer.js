@@ -4,7 +4,8 @@ export const initialState = {
     interviews: [],
     interview: {},
     loading: false,
-    error: {}
+    error: {},
+    categories: ["interviewed", "organized", "participated"]
 }
 
 export default function interviewsReducer(state = initialState, action) {
@@ -68,6 +69,12 @@ export default function interviewsReducer(state = initialState, action) {
                 ... state,
                 loading: false,
                 error: action.payload
+            }
+            break;
+        case actions.CHANGE_CATEGORIES:
+            return {
+                ... state,
+                categories: action.payload
             }
             break;
         default:

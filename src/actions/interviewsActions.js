@@ -9,8 +9,16 @@ export const POST_INTERVIEW_FAILURE = 'POST_INTERVIEW_FAILURE'
 export const UPDATE_INTERVIEW = 'UPDATE INTERVIEW'
 export const UPDATE_INTERVIEW_SUCCESS = 'UPDATE_INTERVIEW_SUCCESS'
 export const UPDATE_INTERVIEW_FAILURE = 'UPDATE_INTERVIEW_FAILURE'
+export const CHANGE_CATEGORIES = 'CHANGE_CATEGORIES'
 
 
+
+export const changeCategories = (categories)=>{
+    return{
+        type: CHANGE_CATEGORIES,
+        payload: categories
+    }
+}
 
 export const getInterviews = ()=>{
     return {
@@ -40,15 +48,21 @@ const mapp = (interviews) => {
 
 
 //combining them all in an asynchronous thunk
-export function fetchInterviews(){
+export function fetchInterviews(categories = ["organized", "participated", "interviewed"]){
     return async (dispatch)=>{
         dispatch(getInterviews())
         try {
             let data = await getData("http://localhost:4000/interviews");
             console.log("data is ", data );
-            data = data.interviews.organized.concat(data.interviews.participated).concat(data.interviews.interviewed);
-            data = await mapp(data);
-            dispatch(getInterviewsSuccess(data))
+            let finalData = []
+            categories.forEach((category)=>{
+                finalData = finalData.concat(data.interviews[`${category}`]);
+            })
+            // data = data.interviews.organized.concat(data.interviews.participated).concat(data.interviews.interviewed);
+            console.log("final data is ", finalData);
+            finalData = await mapp(finalData);
+            dispatch(getInterviewsSuccess(finalData))
+            dispatch(changeCategories(categories));
         } catch (error) {
             dispatch(getInterviewsFailure(error))
         }
