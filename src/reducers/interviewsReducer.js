@@ -19,7 +19,8 @@ export default function interviewsReducer(state = initialState, action) {
             return {
                 ... state,
                 loading: false,
-                interviews: action.payload
+                interviews: action.payload,
+                interview: {}
             }
             break;
         case actions.GET_INTERVIEWS_FAILURE:

@@ -1,4 +1,4 @@
-import { getData, postData } from "../Utils"
+import { getData, postData ,putData, postResumeData} from "../Utils"
 
 export const GET_INTERVIEWS = 'GET INTERVIEWS'
 export const GET_INTERVIEWS_SUCCESS = 'GET_INTERVIEWS_SUCCESS'
@@ -76,15 +76,28 @@ export const postInterviewFailure = (error)=>{
 }
 
 //combining them all in an asynchronous thunk
-export function postNewInterview(interview){
+export function postNewInterview(interview, resumes){
     return async (dispatch)=>{
         dispatch(postInterview())
             let res = await postData("http://localhost:4000/interviews", interview);
+            console.log("received res is ", res);
             if(res.error){
                 dispatch(postInterviewFailure(res.error))
             }
             else{
-                dispatch(postInterviewSuccess(res))
+                //send the resumes as well
+                console.log("resumes are ", resumes , "and id is ", res.id)
+                let formData = new FormData();
+                resumes.forEach((resume, index) => {
+                    formData.append(`file${index}`,resume);
+                });
+                res = await postResumeData(`http://localhost:4000/interviews/${res.id}/resumes`,formData);
+                if(res.error){
+                    dispatch(postInterviewFailure(res.error))
+                }
+                else{
+                    dispatch(postInterviewSuccess(res))
+                }
             }
     }
 }
@@ -110,10 +123,10 @@ export const updateInterviewFailure = (error)=>{
 }
 
 //combining them all in an asynchronous thunk
-export function updateExistingInterview(interview){
+export function updateExistingInterview(interview,id){
     return async (dispatch)=>{
         dispatch(updateInterview())
-            let res = await postData("http://localhost:4000/interviews", interview);
+            let res = await putData(`http://localhost:4000/interviews/${id}`, interview);
             if(res.error){
                 dispatch(updateInterviewFailure(res.error))
             }

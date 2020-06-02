@@ -8,7 +8,7 @@ function PopUp(props) {
     const toggleShowA = () => setShowA(!showA);
   
     return (
-          <Toast show={showA} onClose={()=>{toggleShowA();  props.onClose(); props.handleSuccessfullCreateEdit();}}>
+          <Toast show={showA} onClose={()=>{toggleShowA(); props.handleSuccessfullCreateEdit();}}>
             <Toast.Header>
               <img
                 src="holder.js/20x20?text=%20"

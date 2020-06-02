@@ -22,8 +22,8 @@ const mapStateToProps = (state)=>{
 
 const mapDispatchToProps = dispatch =>{
     return {
-       postNewInterview: (interview)=> dispatch(postNewInterview(interview)),
-       updateExistingInterview: (interview)=> dispatch(postNewInterview(interview))
+       postNewInterview: (interview, resumes)=> dispatch(postNewInterview(interview,resumes)),
+       updateExistingInterview: (interview ,id)=> dispatch(updateExistingInterview(interview,id))
     }
 }
 
@@ -76,53 +76,25 @@ const Form = (props) =>{
     }
 
     const editInterview = async (interview) => {
-        props.updateExistingInterview({interview:interview});
-        // const res = await putData(`http://localhost:4000/interviews/${
-        //     props.id
-        // }`, {interview: interview});
-        // console.log("res is ", res);
-        // if (res.error) { // print errors in form here
-        //     reflectFormErrors(res.error);
-        // } else {
-        //     alert("interview updated successfully");
-        //     props.handleSuccessfullCreateEdit();
-        //     onClose();
-        // }
+        props.updateExistingInterview({interview:interview}, props.id);
     }
-    const uploadFiles = async (files, interviewid) => {
-        var formData = new FormData();
-        files.map((file, index) => {
+    const collectResumeFiles = async (files) => {
+        console.log("files are ", files);
+        let formData = new FormData();
+        files.forEach((file, index) => {
+            console.log("hi")
+            console.log("file is ",file);
+            console.log("index is ", index);
             formData.append(`file${index}`, file);
         });
-        fetch(`http://localhost:4000/interviews/${interviewid}/resumes`, {
-            method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            credentials: 'same-origin',
-            headers: {
-                'Authorization': `Bearer ${
-                    localStorage.getItem("token")
-                }`
-            },
-            redirect: 'follow',
-            referrerPolicy: 'no-referrer',
-            body: formData
-        }).then(response => response.json()).then(success => {
-            alert("upload was successfull !");
-        }).catch(error => console.log(error));
+        console.log("form data is ",formData);
+        return formData;
     }
 
     const createInterview = async (interview) => {
-        props.postNewInterview({interview:interview});
-        // if (props.error) { // print errors in form here
-        //     reflectFormErrors(props.error);
-        // } else {
-        //     alert("interview created successfully");
-        //     // uploadFiles(resumes,res.id);
-        //     // props.handleSuccessfullCreateEdit();
-        //     // onClose();
-        // }
+        props.postNewInterview({interview:interview},resumes);
     }
+
     const handleFile = (e) => {
         setResumes(Array.from(e.target.files))
     }
@@ -141,9 +113,6 @@ const Form = (props) =>{
     if(props.loading){
         form = <LoadingSpinner />
     }
-    else if (Object.keys(props.interview).length > 0){
-        form = <PopUp message="interview saved successfully" handleSuccessfullCreateEdit={props.handleSuccessfullCreateEdit} onClose = {onClose}/>
-    }
     else{
         form = <div className="card-body">
         <div className="card"
@@ -157,7 +126,7 @@ const Form = (props) =>{
                     class="fa fa-window-close-o"
                     onClick={onClose}
                     aria-hidden="true"></i>
-                <form name="Form" id="editForm">
+                <form name="Form" id="editForm" enctype ="multipart/form-data">
                     <div className="form-group">
                         <small id="title"
                             style={

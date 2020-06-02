@@ -8,7 +8,8 @@ import {fetchUsers} from '../actions/usersActions'
 import {fetchInterviews} from '../actions/interviewsActions'
 import {connect} from 'react-redux'
 import LoadingSpinner from '../Components/LoadingSpinner'
-
+import { Toast } from 'react-bootstrap';
+import PopUp from '../Components/PopUp'
 const mapStateToProps = (state)=>{
     console.log("map state to props ");
     return {
@@ -16,7 +17,8 @@ const mapStateToProps = (state)=>{
         users: state.users.users,
         interviews: state.interviews.interviews,
         errorUsers: state.users.error,
-        errorInterviews: state.interviews.error
+        errorInterviews: state.interviews.error,
+        interview: state.interviews.interview
     }
 }
 
@@ -28,12 +30,10 @@ const mapDispatchToProps = dispatch =>{
     }
 }
 
-const InterviewList = (props)=> {
-    console.log("inside component");
+const InterviewList = React.memo((props)=> {
     let history = useHistory();
 
     useEffect(()=> {
-        console.log("inside use effect");
         checkLoginStatus().then((res)=>{
             if(res){
                 props.fetchInterviews()
@@ -60,8 +60,14 @@ const InterviewList = (props)=> {
         props.fetchInterviews();
     }
 
-
+    let message = <div className="message"></div>;
     let page;
+    if((Object.keys(props.interview).length !== 0)){
+    message = <div className="message">
+        <PopUp message="interview saved successfully" handleSuccessfullCreateEdit={handleSuccessfullCreateEdit}/>
+    </div>
+    }
+
     if(!props.loading){
         page =  
         <div className="row">
@@ -97,8 +103,9 @@ const InterviewList = (props)=> {
     }
     return (
         <>
+        {message}
        {page}
        </>
     )
-}
+})
 export default connect(mapStateToProps, mapDispatchToProps)(InterviewList)
