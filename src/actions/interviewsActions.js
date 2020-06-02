@@ -4,6 +4,7 @@ export const GET_INTERVIEWS = 'GET INTERVIEWS'
 export const GET_INTERVIEWS_SUCCESS = 'GET_INTERVIEWS_SUCCESS'
 export const GET_INTERVIEWS_FAILURE = 'GET_INTERVIEWS_FAILURE'
 
+
 export const getInterviews = ()=>{
     return {
         type: GET_INTERVIEWS

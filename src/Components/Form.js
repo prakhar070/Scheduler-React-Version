@@ -1,21 +1,34 @@
 import React from 'react'
 import {useEffect, useState} from 'react'
 import {
-    postData,
     putData,
     utcToLocal,
     localToUtc,
     checkInterviewValidations,
 } from "../Utils"
 import {reflectFormErrors} from "../AuthUtils"
+import {postNewInterview} from '../actions/postInterviewAction'
+import {connect} from 'react-redux'
 
-export default function Form(props) {
+const mapStateToProps = (state)=>{
+    return {
+        loading: state.postInterview.loading,
+        error: state.postInterview.error
+    }
+}
+
+const mapDispatchToProps = dispatch =>{
+    return {
+       postNewInterview: (interview)=> dispatch(postNewInterview(interview)),
+    }
+}
+
+const Form = (props) =>{
     let titleRef = null;
     let starttimeRef = null;
     let endtimeRef = null;
     let participantsRef = null;
     let interviewerRef = null;
-    let resumeRef = null;
 
     const [resumes, setResumes] = useState([]);
     const setData = () => {
@@ -72,24 +85,6 @@ export default function Form(props) {
             onClose();
         }
     }
-    const postInterviewData = async (url = '', data = {}) => {
-        const response = await fetch(url, {
-            method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            credentials: 'same-origin',
-            headers: {
-                'Authorization': `Bearer ${
-                    localStorage.getItem("token")
-                }`
-            },
-            redirect: 'follow',
-            referrerPolicy: 'no-referrer',
-            body: JSON.stringify(data)
-        });
-        const jsondata = await response.json();
-        return jsondata;
-    }
     const uploadFiles = async (files, interviewid) => {
         var formData = new FormData();
         files.map((file, index) => {
@@ -114,17 +109,20 @@ export default function Form(props) {
     }
 
     const createInterview = async (interview) => {
-        console.log("interview data is ", interview);
-        const res = await postData("http://localhost:4000/interviews/", {interview: interview});
-        console.log("res is ", res);
-        if (res.error) { // print errors in form here
-            reflectFormErrors(res.error);
-        } else {
-            alert("interview created successfully");
-            uploadFiles(resumes,res.id);
-            props.handleSuccessfullCreateEdit();
-            onClose();
-        }
+        console.log("interviews is ", {interview:interview} );
+        //const res = await postData("http://localhost:4000/interviews/", {interview: interview});
+        //console.log("res is ", res);
+        props.postNewInterview({interview:interview});
+        //after this I will check the state, if there is success, then I will display a component to show success, else I will show failure
+        console.log("errors are ", props.error)
+        // if (props.error) { // print errors in form here
+        //     reflectFormErrors(props.error);
+        // } else {
+        //     alert("interview created successfully");
+        //     // uploadFiles(resumes,res.id);
+        //     // props.handleSuccessfullCreateEdit();
+        //     // onClose();
+        // }
     }
     const handleFile = (e) => {
         setResumes(Array.from(e.target.files))
@@ -133,7 +131,12 @@ export default function Form(props) {
         setData();
     }, [])
 
-    return (<div className="card-body">
+    useEffect(()=>{
+        reflectFormErrors(props.error);
+    },[props.error])
+
+    return (
+    <div className="card-body">
         <div className="card"
             style={
                 {width: "auto"}
@@ -260,6 +263,9 @@ export default function Form(props) {
                 className="btn btn-secondary"
                 id="submit">Done</button>
         </form>
+
     </div>
-</div></div>)
+</div>
+</div>)
 }
+export default connect(mapStateToProps, mapDispatchToProps)(Form)
