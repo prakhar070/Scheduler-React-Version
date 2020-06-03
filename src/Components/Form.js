@@ -1,21 +1,38 @@
 import React from 'react'
 import {useEffect, useState} from 'react'
 import {
-    postData,
     putData,
     utcToLocal,
     localToUtc,
     checkInterviewValidations,
 } from "../Utils"
 import {reflectFormErrors} from "../AuthUtils"
+import {postNewInterview, updateExistingInterview} from '../actions/interviewsActions'
+import {connect} from 'react-redux'
+import LoadingSpinner from './LoadingSpinner'
+import PopUp from './PopUp'
 
-export default function Form(props) {
-    let titleRef = null;
-    let starttimeRef = null;
-    let endtimeRef = null;
-    let participantsRef = null;
-    let interviewerRef = null;
-    let resumeRef = null;
+const mapStateToProps = (state)=>{
+    return {
+        loading: state.interviews.loading,
+        error: state.interviews.error,
+        interview: state.interviews.interview
+    }
+}
+
+const mapDispatchToProps = dispatch =>{
+    return {
+       postNewInterview: (interview, resumes)=> dispatch(postNewInterview(interview,resumes)),
+       updateExistingInterview: (interview ,id)=> dispatch(updateExistingInterview(interview,id))
+    }
+}
+
+const Form = (props) =>{
+    let titleRef;
+        let starttimeRef;
+        let endtimeRef;
+        let participantsRef;
+        let interviewerRef;
 
     const [resumes, setResumes] = useState([]);
     const setData = () => {
@@ -41,7 +58,6 @@ export default function Form(props) {
                 interview.participants.push(options[i].value);
             }
         }
-        console.log("interview object is ", interview);
         return interview
     }
     const onClose = (e) => {
@@ -60,80 +76,45 @@ export default function Form(props) {
     }
 
     const editInterview = async (interview) => {
-        const res = await putData(`http://localhost:4000/interviews/${
-            props.id
-        }`, {interview: interview});
-        console.log("res is ", res);
-        if (res.error) { // print errors in form here
-            reflectFormErrors(res.error);
-        } else {
-            alert("interview updated successfully");
-            props.handleSuccessfullCreateEdit();
-            onClose();
-        }
+        props.updateExistingInterview({interview:interview}, props.id);
     }
-    const postInterviewData = async (url = '', data = {}) => {
-        const response = await fetch(url, {
-            method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            credentials: 'same-origin',
-            headers: {
-                'Authorization': `Bearer ${
-                    localStorage.getItem("token")
-                }`
-            },
-            redirect: 'follow',
-            referrerPolicy: 'no-referrer',
-            body: JSON.stringify(data)
-        });
-        const jsondata = await response.json();
-        return jsondata;
-    }
-    const uploadFiles = async (files, interviewid) => {
-        var formData = new FormData();
-        files.map((file, index) => {
+    const collectResumeFiles = async (files) => {
+        console.log("files are ", files);
+        let formData = new FormData();
+        files.forEach((file, index) => {
+            console.log("hi")
+            console.log("file is ",file);
+            console.log("index is ", index);
             formData.append(`file${index}`, file);
         });
-        fetch(`http://localhost:4000/interviews/${interviewid}/resumes`, {
-            method: 'POST',
-            mode: 'cors',
-            cache: 'no-cache',
-            credentials: 'same-origin',
-            headers: {
-                'Authorization': `Bearer ${
-                    localStorage.getItem("token")
-                }`
-            },
-            redirect: 'follow',
-            referrerPolicy: 'no-referrer',
-            body: formData
-        }).then(response => response.json()).then(success => {
-            alert("upload was successfull !");
-        }).catch(error => console.log(error));
+        console.log("form data is ",formData);
+        return formData;
     }
 
     const createInterview = async (interview) => {
-        console.log("interview data is ", interview);
-        const res = await postData("http://localhost:4000/interviews/", {interview: interview});
-        console.log("res is ", res);
-        if (res.error) { // print errors in form here
-            reflectFormErrors(res.error);
-        } else {
-            alert("interview created successfully");
-            uploadFiles(resumes,res.id);
-            props.handleSuccessfullCreateEdit();
-            onClose();
-        }
+        props.postNewInterview({interview:interview},resumes);
     }
+
     const handleFile = (e) => {
         setResumes(Array.from(e.target.files))
     }
+
     useEffect(() => {
-        setData();
+        if(Object.keys(props.interview).length === 0)
+            setData();
     }, [])
 
-    return (<div className="card-body">
+    useEffect(()=>{
+        reflectFormErrors(props.error);
+    },[props.error])
+
+
+    let form;
+    if(props.loading){
+        form = <LoadingSpinner />
+    }
+    else{
+        form = <div className="card-body">
         <div className="card"
             style={
                 {width: "auto"}
@@ -145,7 +126,7 @@ export default function Form(props) {
                     class="fa fa-window-close-o"
                     onClick={onClose}
                     aria-hidden="true"></i>
-                <form name="Form" id="editForm">
+                <form name="Form" id="editForm" enctype ="multipart/form-data">
                     <div className="form-group">
                         <small id="title"
                             style={
@@ -260,6 +241,16 @@ export default function Form(props) {
                 className="btn btn-secondary"
                 id="submit">Done</button>
         </form>
+
     </div>
-</div></div>)
+</div>
+</div>
 }
+    return (
+        <>
+        {form}
+        </>
+    )
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Form)
